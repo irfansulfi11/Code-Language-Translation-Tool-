@@ -59,8 +59,3 @@ An AI-powered web application that translates code between popular programming l
 
 Feel free to submit issues, suggestions, or pull requests to help improve this project.
 
----
-
-### 🔗 Connect
-
-Feel free to reach out or connect with me on [LinkedIn](www.linkedin.com/in/irfansulfi11).
