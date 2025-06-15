@@ -53,20 +53,7 @@ An AI-powered web application that translates code between popular programming l
    http://localhost:5000  # or http://127.0.0.1:8000 for FastAPI
    ```
 
-## 📥 Download
 
-You can download the project directly:
-- [Download ZIP](https://github.com/your-username/code-translation-app/archive/refs/heads/main.zip)
-
-Or clone it via Git:
-```bash
-git clone https://github.com/your-username/code-translation-app.git
-```
-
-## 📄 License
-This project is licensed under the MIT License.
-
----
 
 ### 🙌 Contributions Welcome!
 
@@ -76,4 +63,4 @@ Feel free to submit issues, suggestions, or pull requests to help improve this p
 
 ### 🔗 Connect
 
-Feel free to reach out or connect with me on [LinkedIn](https://www.linkedin.com/in/your-profile).
+Feel free to reach out or connect with me on [LinkedIn](www.linkedin.com/in/irfansulfi11).
