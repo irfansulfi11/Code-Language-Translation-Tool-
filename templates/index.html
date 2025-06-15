@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Language Translator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --code-bg: #111827;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+
+        .form-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 1rem;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.25rem;
+            padding-right: 2.5rem;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .code-input-section {
+            margin-bottom: 2rem;
+        }
+
+        .code-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1.5rem;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .code-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .code-textarea::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .translate-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .translate-btn:active {
+            transform: translateY(0);
+        }
+
+        .translate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .translate-btn:hover::before {
+            left: 100%;
+        }
+
+        .result-section {
+            margin-top: 3rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .method-badge {
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .result-textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 1.5rem;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--success);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .language-icons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .lang-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--code-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .lang-icon:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+        }
+
+        .lang-icon i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .lang-icon span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .main-card {
+                padding: 2rem;
+            }
+
+            .form-section {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .language-icons {
+                gap: 1rem;
+            }
+
+            .lang-icon {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="title">
+                <i class="fas fa-code"></i>
+                Code Translator
+            </h1>
+            <p class="subtitle">Transform your code between programming languages instantly</p>
+        </div>
+
+        <div class="main-card">
+            <!-- Language Icons -->
+            <div class="language-icons">
+                <div class="lang-icon">
+                    <i class="fab fa-python"></i>
+                    <span>Python</span>
+                </div>
+                <div class="lang-icon">
+                    <i class="fab fa-java"></i>
+                    <span>Java</span>
+                </div>
+                <div class="lang-icon">
+                    <i class="fab fa-js-square"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="lang-icon">
+                    <i class="fas fa-code"></i>
+                    <span>C++</span>
+                </div>
+                <div class="lang-icon">
+                    <i class="fas fa-terminal"></i>
+                    <span>C</span>
+                </div>
+            </div>
+
+            <form method="POST" id="translateForm">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label class="form-label" for="source_lang">
+                            <i class="fas fa-arrow-right"></i>
+                            Source Language
+                        </label>
+                        <select name="source_lang" id="source_lang" class="form-select" required>
+                            <option value="">Choose source language</option>
+                            <option value="python">🐍 Python</option>
+                            <option value="java">☕ Java</option>
+                            <option value="javascript">🟨 JavaScript</option>
+                            <option value="c++">⚡ C++</option>
+                            <option value="c">🔧 C</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="target_lang">
+                            <i class="fas fa-bullseye"></i>
+                            Target Language
+                        </label>
+                        <select name="target_lang" id="target_lang" class="form-select" required>
+                            <option value="">Choose target language</option>
+                            <option value="python">🐍 Python</option>
+                            <option value="java">☕ Java</option>
+                            <option value="javascript">🟨 JavaScript</option>
+                            <option value="c++">⚡ C++</option>
+                            <option value="c">🔧 C</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="code-input-section">
+                    <div class="form-group">
+                        <label class="form-label" for="code_input">
+                            <i class="fas fa-code"></i>
+                            Your Code
+                        </label>
+                        <textarea 
+                            name="code_input" 
+                            id="code_input" 
+                            class="code-textarea"
+                            placeholder="// Paste your code here...
+function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}"
+                            required
+                        ></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="translate-btn" id="translateBtn">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Translate Code</span>
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span>Translating your code...</span>
+                </div>
+            </form>
+            
+            {% if translated_code %}
+                <div class="result-section">
+                    <div class="result-header">
+                        <h2 class="result-title">
+                            <i class="fas fa-check-circle"></i>
+                            Translation Complete
+                        </h2>
+                        {% if translation_method %}
+                            <div class="method-badge">{{ translation_method }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <textarea class="result-textarea" id="result" readonly>{{ translated_code }}</textarea>
+                    
+                    <button type="button" class="copy-btn" onclick="copyToClipboard()">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy to Clipboard</span>
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Create animated background particles
+        function createParticles() {
+            const bgAnimation = document.getElementById('bgAnimation');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                bgAnimation.appendChild(particle);
+            }
+        }
+
+        // Copy to clipboard function
+        function copyToClipboard() {
+            const textarea = document.getElementById('result');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy');
+                const button = event.target.closest('.copy-btn');
+                const icon = button.querySelector('i');
+                const text = button.querySelector('span');
+                
+                icon.className = 'fas fa-check';
+                text.textContent = 'Copied!';
+                button.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    icon.className = 'fas fa-copy';
+                    text.textContent = 'Copy to Clipboard';
+                    button.style.background = '#10b981';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+        }
+
+        // Form submission loading state
+        document.getElementById('translateForm').addEventListener('submit', function() {
+            const btn = document.getElementById('translateBtn');
+            const loading = document.getElementById('loading');
+            
+            btn.style.display = 'none';
+            loading.classList.add('active');
+        });
+
+        // Auto-resize textareas
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    autoResize(this);
+                });
+                // Initial resize
+                autoResize(textarea);
+            });
+
+            // Language icon click handlers
+            const langIcons = document.querySelectorAll('.lang-icon');
+            langIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const langName = this.querySelector('span').textContent.toLowerCase();
+                    const sourceSelect = document.getElementById('source_lang');
+                    const targetSelect = document.getElementById('target_lang');
+                    
+                    if (!sourceSelect.value) {
+                        sourceSelect.value = langName === 'c++' ? 'c++' : langName;
+                    } else if (!targetSelect.value && sourceSelect.value !== langName) {
+                        targetSelect.value = langName === 'c++' ? 'c++' : langName;
+                    }
+                });
+            });
+        });
+
+        // Prevent same language selection
+        document.getElementById('source_lang').addEventListener('change', function() {
+            const targetSelect = document.getElementById('target_lang');
+            if (this.value === targetSelect.value) {
+                targetSelect.value = '';
+            }
+        });
+
+        document.getElementById('target_lang').addEventListener('change', function() {
+            const sourceSelect = document.getElementById('source_lang');
+            if (this.value === sourceSelect.value) {
+                sourceSelect.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
