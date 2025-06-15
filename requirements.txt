@@ -1,0 +1,4 @@
+flask==2.3.2
+transformers==4.35.0
+torch==2.0.1
+sentencepiece==0.1.99
